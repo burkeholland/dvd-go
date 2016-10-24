@@ -1,0 +1,39 @@
+@{
+    var dvdTemplate = "# if (data.DVD) { # <i class='fa fa-check' aria-hidden='true'></i> # } #";
+    var blueRayTemplate = "# if (data.BlueRay) { # <i class='fa fa-check' aria-hidden='true'></i> # } #";
+}
+
+<div>
+    @(Html.Kendo().Grid<DVDGo.Models.Video>()
+        .Name("Videos")
+        .Columns(columns => {
+            columns.Bound(p => p.Name);
+            columns.ForeignKey(p => p.GenreId, (System.Collections.IEnumerable)ViewData["genres"], "Id", "Name").Title("Genre");
+            columns.ForeignKey(p => p.RatingId, (System.Collections.IEnumerable)ViewData["ratings"], "Id", "Name").Title("Rating");
+            columns.Bound(p => p.DVD).ClientTemplate(dvdTemplate).HtmlAttributes(new { style = "text-align: center" });
+            columns.Bound(p => p.BlueRay).Title("BlueRay").ClientTemplate(blueRayTemplate).HtmlAttributes(new { style = "text-align: center" });
+            columns.Command(command => { command.Edit(); command.Destroy(); }).Width(185);
+        })
+        .ToolBar(toolbar => toolbar.Create())
+        .Pageable()
+        .Sortable()
+        .Filterable()
+        .Groupable()
+        .Editable(editable => editable.Mode(GridEditMode.InLine))
+        .DataSource(datasource => datasource
+            .Ajax()
+            .PageSize(10)
+            .Model(model => {
+                model.Id(p => p.Id);
+                model.Field(p => p.GenreId).DefaultValue(1);
+                model.Field(p => p.RatingId).DefaultValue(1);
+                model.Field(p => p.DVD).DefaultValue(true);
+            })
+            .Read(read => read.Action("List", "Video"))
+            .Create(create => create.Action("Create", "Video"))
+            .Update(update => update.Action("Update", "Video"))
+            .Destroy(destroy => destroy.Action("Destroy", "Video"))
+            .Sort(sort => sort.Add("Name").Ascending())
+        )
+    )
+</div>
